@@ -1,0 +1,54 @@
+Volleyball Stream Scoreboard
+A live volleyball scoreboard for YouTube streams. One device runs the scoreboard and shows it on your stream. A second phone controls it.
+Overlay (`/overlay`): the scoreboard graphic. Transparent background, added to your stream as a Browser Source.
+Controller (`/control`): a big-button page for the second phone.
+It tracks points, sets won, who is serving, timeouts (2 per set), previous set scores, win-by-2 rules (sets go to 25, the deciding set goes to 15), best of 3 or 5, and has an Undo button.
+Setup
+Install Node.js (version 16 or newer) on the computer you stream from.
+In this folder, run:
+```
+   node server.js
+   ```
+It prints two addresses. Keep the window open while you stream.
+Add the overlay to your stream (OBS Studio or Streamlabs Desktop):
+Add a source, choose Browser.
+URL: `http://localhost:3000/overlay`
+Width 1920, Height 1080.
+Stream to YouTube the way you normally do. The scoreboard shows up in the video.
+Control it from the second phone:
+Connect the phone to the same Wi-Fi as the computer.
+Open the "Phone controller" address the server printed, for example `http://192.168.1.25:3000/control`.
+Add it to your home screen for a full-screen app feel.
+Using the controller
+Button	What it does
++1 point	Adds a point and gives that team the serve (rally winner serves).
+−1	Fixes a mistake. Does not change the serve.
+Serving	Sets or clears the serve indicator manually.
+Timeout	Uses one of the team's 2 timeouts for the set.
+End set	Records the set score, adds a set win, and resets points and timeouts. It turns yellow when a team has won the set (25 or 15, win by 2).
+Undo	Steps back through your last 50 changes.
+Swap sides	Swaps teams between the two rows, for between sets.
+Overlay ON/OFF	Fades the scoreboard in or out on stream.
+Format	Best of 3 or best of 5.
+New match	Resets everything but keeps names, colors and title.
+Team names, colors and the match title can be edited right on the controller and show up on stream as you type.
+Overlay position and size
+Add options to the overlay URL:
+`?pos=bottom` puts it at the bottom of the screen (default is the top).
+`?align=right` or `?align=center` moves it horizontally (default is left).
+`?zoom=1.5` makes it bigger.
+Combine them like `http://localhost:3000/overlay?pos=bottom&align=center&zoom=1.3`.
+Controlling from outside your Wi-Fi
+If the scorekeeper is at a different place from the computer (or on mobile data), you need a public address and a PIN:
+Start with a PIN: `PIN=4821 node server.js` (on Windows PowerShell: `$env:PIN="4821"; node server.js`).
+Expose the port with a tunnel such as Cloudflare Tunnel or ngrok, then open `<tunnel address>/control` on the phone and enter the PIN.
+Anyone who has the address can see the overlay, but only someone with the PIN can change the score.
+Streaming from a phone only
+A phone streaming app generally can't load a Browser Source, so the scoreboard can't be added directly. Options:
+Stream from a computer using OBS or Streamlabs (recommended).
+Use a phone streaming app that supports web overlays or browser sources, then point it at the overlay URL.
+Troubleshooting
+Phone can't open the controller: check that both devices are on the same Wi-Fi, and allow Node.js through the computer's firewall when prompted. Guest Wi-Fi networks often block device-to-device traffic.
+Overlay is blank in OBS: that's normal when the overlay is hidden. Tap "Overlay: ON" on the controller. Right-click the source and choose Refresh if it still doesn't show.
+Different port: `PORT=8080 node server.js`.
+Scores live in memory, so restarting the server resets the match.
